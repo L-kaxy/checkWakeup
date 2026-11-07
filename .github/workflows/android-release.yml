@@ -1,0 +1,99 @@
+name: Build and release APK
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Secret-free checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Select installed JDK 17
+        run: echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+      - name: Static and JVM checks (public test fixtures only)
+        run: |
+          python3 scripts/check-static.py
+          bash scripts/test-core.sh
+          bash scripts/test-upload.sh
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
+          python3 scripts/test-upload-migration.py
+
+  apk:
+    name: Signed APK
+    needs: verify
+    # Never expose signing secrets to pull requests or fork PR code.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write # Only used by the tag-release step below.
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Select installed JDK 17 and SDK
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Install only the required SDK packages
+        run: |
+          (yes || true) | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-35" "build-tools;35.0.0"
+      - name: Inject configuration and sign with the existing certificate
+        env:
+          CHECKWAKEUP_REPORT_URL: ${{ vars.CHECKWAKEUP_REPORT_URL }}
+          CHECKWAKEUP_KID: ${{ vars.CHECKWAKEUP_KID }}
+          # Secrets can be used instead of Variables for the public key.
+          CHECKWAKEUP_PUBLIC_KEY_PEM: ${{ secrets.CHECKWAKEUP_PUBLIC_KEY_PEM || vars.CHECKWAKEUP_PUBLIC_KEY_PEM }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/checkwakeup-signing.p12
+        run: |
+          python3 scripts/prepare-ci-signing.py
+          bash scripts/build.sh
+      - name: Remove signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/checkwakeup-signing.p12"
+      - name: Upload APK and public verification metadata
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, Node 24
+        with:
+          name: checkwakeup-apk-${{ github.run_number }}
+          path: |
+            dist/checkwakeup-*-release.apk
+            dist/checkwakeup-*-release.apk.sha256
+            dist/build-info.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish tag release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mapfile -t apks < <(find dist -maxdepth 1 -name 'checkwakeup-*-release.apk' -type f)
+          test "${#apks[@]}" -eq 1
+          # Build already checked that the tag matches version.json.
+          # Never overwrite an existing release or silently replace its APK.
+          gh release create "$GITHUB_REF_NAME" --verify-tag --draft \
+            --title "CheckWakeup $GITHUB_REF_NAME" \
+            --notes "Signed APK. SHA-256 and signing certificate metadata are attached. Install over the previous version; do not uninstall." \
+            "${apks[0]}" "${apks[0]}.sha256" dist/build-info.json
+          gh release edit "$GITHUB_REF_NAME" --draft=false

@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.application'
+}
+
+def appVersion = new groovy.json.JsonSlurper().parse(rootProject.file('version.json'))
+def generatedServer = layout.buildDirectory.dir('generated/server')
+def generateServerConfig = tasks.register('generateServerConfig', Exec) {
+    workingDir rootProject.projectDir
+    commandLine(System.getenv('PYTHON') ?: 'python3',
+            rootProject.file('scripts/generate-build-config.py').absolutePath,
+            '--output', generatedServer.get().asFile.absolutePath)
+    outputs.upToDateWhen { false }
+}
+
+android {
+    namespace 'dev.checkwakeup'
+    compileSdk 35
+    buildToolsVersion '35.0.0'
+
+    defaultConfig {
+        applicationId 'dev.checkwakeup'
+        minSdk 28
+        targetSdk 35
+        versionCode appVersion.code
+        versionName appVersion.name
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildTypes {
+        debug {
+            // Canonical signed builds use scripts/build.sh. Never create a new
+            // AGP debug certificate that cannot upgrade the existing APK.
+            signingConfig = null
+        }
+        release {
+            minifyEnabled false
+            signingConfig = null
+        }
+    }
+    sourceSets.main.java.srcDir(generatedServer)
+    lint {
+        abortOnError true
+        checkReleaseBuilds true
+    }
+}
+
+tasks.named('preBuild').configure { dependsOn(generateServerConfig) }
+
+// Deliberately no third-party runtime dependencies, Kotlin compiler or UI framework.

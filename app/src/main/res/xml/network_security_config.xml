@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- User-configured HTTP endpoints carry JWE bodies only. HTTPS keeps normal
+         system certificate checks; no trust-all CA or hostname bypass. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

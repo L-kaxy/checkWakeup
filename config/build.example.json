@@ -1,0 +1,5 @@
+{
+  "report_url": "https://your-server.example/ingest/v1/reports",
+  "kid": "your-server-key-id",
+  "public_key_file": "report-public.pem"
+}

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:padding="20dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/app_name" android:textSize="28sp"
+            android:textStyle="bold" android:textColor="#183E36" />
+        <TextView android:id="@+id/day_label" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="8dp"
+            android:textSize="13sp" android:textColor="#5B6862" />
+        <TextView android:id="@+id/status" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="18dp"
+            android:padding="14dp" android:background="#E4EDE7"
+            android:textSize="14sp" android:textColor="#183E36"
+            android:accessibilityLiveRegion="polite" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginTop="8dp">
+            <Button android:id="@+id/usage_permission" android:layout_width="0dp"
+                android:layout_weight="1" android:layout_height="wrap_content"
+                android:text="使用记录权限" />
+            <Button android:id="@+id/notification_permission" android:layout_width="0dp"
+                android:layout_weight="1" android:layout_height="wrap_content"
+                android:text="通知设置" />
+        </LinearLayout>
+        <Button android:id="@+id/toggle_monitor" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="开始监控" />
+        <TextView android:id="@+id/unlock_count" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="20dp"
+            android:textSize="36sp" android:textStyle="bold" android:textColor="#183E36" />
+        <TextView android:id="@+id/last_unlock" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textSize="14sp"
+            android:textColor="#5B6862" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:text="目标 App"
+            android:textSize="18sp" android:textStyle="bold" android:textColor="#183E36" />
+        <Button android:id="@+id/select_app" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="选择一个已安装 App" />
+        <TextView android:id="@+id/package_label" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textSize="12sp"
+            android:textColor="#5B6862" android:textIsSelectable="true" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:text="时段检查"
+            android:textSize="18sp" android:textStyle="bold" android:textColor="#183E36" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" android:text="每个时段内连续前台 ≥10 秒即完成；后台和锁屏不计时。"
+            android:textSize="13sp" android:textColor="#5B6862" />
+        <LinearLayout android:id="@+id/windows" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="vertical"
+            android:layout_marginTop="8dp" />
+        <Button android:id="@+id/add_window" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="添加时间段" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:text="今日解锁记录"
+            android:textSize="18sp" android:textStyle="bold" android:textColor="#183E36" />
+        <Button android:id="@+id/show_unlocks" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="查看全部解锁时间" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:text="锁屏通知模式"
+            android:textSize="18sp" android:textStyle="bold" android:textColor="#183E36" />
+        <Switch android:id="@+id/live_updates" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="48dp"
+            android:text="Live Updates 实验模式" android:textColor="#183E36" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="默认关闭，保留原版通知。打开仅请求系统提升展示，不保证出现大卡片；关闭即恢复原版。实验摘要：✓完成 ○待开始 …待完成 ×未达标。\n本版先验证系统接纳能力，不每小时自动重发。手动移除实验通知后会关闭实验模式。"
+            android:textSize="12sp" android:textColor="#5B6862" />
+        <Button android:id="@+id/live_updates_settings" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="Live Updates 系统设置" />
+        <TextView android:id="@+id/live_updates_diagnostics" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="8dp"
+            android:textSize="12sp" android:textColor="#5B6862"
+            android:textIsSelectable="true" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:text="数据上报"
+            android:textSize="18sp" android:textStyle="bold" android:textColor="#183E36" />
+        <Switch android:id="@+id/upload_enabled" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="48dp"
+            android:text="启用加密上报" android:textColor="#183E36" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="默认关闭，不影响本地统计精度与通知。解锁、达标及状态变化时上报；无变化每 15 分钟心跳。离线合并待传数据，恢复后重试。"
+            android:textSize="12sp" android:textColor="#5B6862" />
+        <EditText android:id="@+id/upload_url" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="后台地址"
+            android:contentDescription="后台上报地址" android:inputType="textUri"
+            android:singleLine="true" android:textSize="14sp" />
+        <EditText android:id="@+id/upload_name" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="上报名称，例如：我的红米"
+            android:contentDescription="上报设备名称" android:inputType="textCapSentences"
+            android:singleLine="true" android:maxLength="128" android:textSize="14sp" />
+        <Button android:id="@+id/upload_save" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="保存上报设置" />
+        <TextView android:id="@+id/upload_status" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textSize="13sp"
+            android:textColor="#5B6862" android:textIsSelectable="true" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button android:id="@+id/upload_retry" android:layout_width="0dp"
+                android:layout_weight="1" android:layout_height="wrap_content" android:text="重试上报" />
+            <Button android:id="@+id/upload_details" android:layout_width="0dp"
+                android:layout_weight="1" android:layout_height="wrap_content" android:text="设备与加密信息" />
+        </LinearLayout>
+        <TextView android:id="@+id/diagnostics" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="14dp"
+            android:textSize="12sp" android:textColor="#5B6862"
+            android:textIsSelectable="true" />
+        <Button android:id="@+id/battery_settings" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="后台与电池设置" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:layout_marginBottom="24dp"
+            android:text="不拦截任何应用 · 上报可独立关闭\n统计日从 06:00 开始。系统事件可延迟到达；缺少权限或系统数据时，不代表未使用。"
+            android:textSize="12sp" android:textColor="#5B6862" />
+    </LinearLayout>
+</ScrollView>

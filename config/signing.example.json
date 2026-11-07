@@ -1,0 +1,6 @@
+{
+  "keystore_file": "../.signing/local-test.p12",
+  "key_alias": "androiddebugkey",
+  "store_password": "REPLACE_LOCALLY",
+  "key_password": "REPLACE_LOCALLY"
+}
